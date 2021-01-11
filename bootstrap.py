@@ -14,6 +14,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from config import config
 
+from flask_sslify import SSLify
 #
 # Theses location should works out-of-box if you use default settings
 #
@@ -22,6 +23,7 @@ BASEPATH = os.path.join(thispath)
 
 app = Flask(__name__, static_url_path='/static')
 app.url_map.strict_slashes = False
+sslify = SSLify(app)
 
 runmodes = {
     "prod": "production",
@@ -73,7 +75,8 @@ def ipxe_script(release, farmer, extra="", source=None):
         abort(404)
 
     kernel_secure = "%s://%s/kernel/%s" % (get_protocol(), request.host, source)
-    kernel_simple = "http://unsecure.%s/kernel/%s" % (request.host, source)
+    #kernel_simple = "http://unsecure.%s/kernel/%s" % (request.host, source)
+    kernel_simple = "http://%s/kernel/%s" % (request.host, source)
 
     chain = "runmode=%s" % release
 
@@ -477,7 +480,7 @@ def kernels():
 
     for filename in target:
         endpoint = os.path.join(config['kernel-path'], filename)
-        stat = os.stat(endpoint, follow_symlinks=False)
+        stat = os.stat(endpoint, follow_symlinks=False,dir_fd=None)
         updated = datetime.datetime.utcfromtimestamp(stat.st_mtime).strftime('%Y-%m-%d, %H:%M:%S (UTC)')
 
         if not S_ISREG(stat.st_mode):
@@ -523,7 +526,7 @@ def kernel_list():
 
     for file in target:
         endpoint = os.path.join(config['kernel-path'], file)
-        stats[file] = os.stat(endpoint, follow_symlinks=False)
+        stats[file] = os.stat(endpoint, follow_symlinks=False,dir_fd=None)
         ordered[file] = stats[file].st_mtime
 
     starget = sorted(ordered.items(), key=operator.itemgetter(1))
@@ -597,4 +600,5 @@ def api_symlink(linkname, target):
     return {'status': 'success'}
 
 print("[+] listening")
-app.run(host="0.0.0.0", port=config['http-port'], debug=config['debug'], threaded=True)
+context=('ogmesh_crt.pem', 'ogmesh_pk.pem')
+app.run(host="0.0.0.0", port=config['http-port'], debug=config['debug'], threaded=True, ssl_context=context)
