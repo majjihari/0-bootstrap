@@ -601,4 +601,5 @@ def api_symlink(linkname, target):
 
 print("[+] listening")
 context=('ogmesh_crt.pem', 'ogmesh_pk.pem')
-app.run(host="0.0.0.0", port=config['http-port'], debug=config['debug'], threaded=True, ssl_context=context)
+#app.run(host="0.0.0.0", port=config['http-port'], debug=config['debug'], threaded=True, ssl_context=context)
+app.run(host="0.0.0.0", port=config['http-port'], debug=config['debug'], threaded=True)
