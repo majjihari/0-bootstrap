@@ -15,7 +15,7 @@ rm -rf ipxe-uefi
 
 echo "[+] downloading source code"
 #git clone --depth=1 https://github.com/gigforks/ipxe
-git clone --depth=1 -b "ipxe" https://github.com/majjihari/ipxe
+git clone --depth=1 -b "ogmesh" https://github.com/majjihari/ipxe
 
 # download let's encrypt root certificates
 pushd ipxe/src
